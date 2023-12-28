@@ -353,26 +353,72 @@ var testSettings = {
     container: board
 };
 var newGame = new Game(testSettings);
-// TODO: BUILD MOVEMENT ARRAY FROM SLIDE FUNCTION, CHECK [X, Y] -> [P, Q], FOR COMBINATION [P, Q] IS WHERE THE COMBINING TILE IS, THEN DRAW BOARD STAMPS
-// TODO: ADD POP ANIMATION FOR NEW AND COMBINED TILES
 newGame.drawBoard();
-window.addEventListener("keydown", function (e) {
-    if (!newGame.moving)
-        swipeF(e);
-});
+// CONTROLS
+function detectswipe(func) {
+    var swipe_det = { sX: 0, sY: 0, eX: 0, eY: 0 };
+    var min_x = 30; //min x swipe for horizontal swipe
+    var max_x = 30; //max x difference for vertical swipe
+    var min_y = 50; //min y swipe for vertical swipe
+    var max_y = 60; //max y difference for horizontal swipe
+    var direc = "";
+    var ele = board;
+    ele.addEventListener('touchstart', function (e) {
+        var t = e.touches[0];
+        swipe_det.sX = t.screenX;
+        swipe_det.sY = t.screenY;
+    }, false);
+    ele.addEventListener('touchmove', function (e) {
+        e.preventDefault();
+        var t = e.touches[0];
+        swipe_det.eX = t.screenX;
+        swipe_det.eY = t.screenY;
+    }, false);
+    ele.addEventListener('touchend', function (e) {
+        //horizontal detection
+        if ((((swipe_det.eX - min_x > swipe_det.sX) || (swipe_det.eX + min_x < swipe_det.sX)) && ((swipe_det.eY < swipe_det.sY + max_y) && (swipe_det.sY > swipe_det.eY - max_y) && (swipe_det.eX > 0)))) {
+            if (swipe_det.eX > swipe_det.sX)
+                direc = "ArrowRight";
+            else
+                direc = "ArrowLeft";
+        }
+        //vertical detection
+        else if ((((swipe_det.eY - min_y > swipe_det.sY) || (swipe_det.eY + min_y < swipe_det.sY)) && ((swipe_det.eX < swipe_det.sX + max_x) && (swipe_det.sX > swipe_det.eX - max_x) && (swipe_det.eY > 0)))) {
+            if (swipe_det.eY > swipe_det.sY)
+                direc = "ArrowDown";
+            else
+                direc = "ArrowUp";
+        }
+        if (direc != "") {
+            if (typeof func == 'function')
+                func(direc);
+        }
+        direc = "";
+        swipe_det.sX = 0;
+        swipe_det.sY = 0;
+        swipe_det.eX = 0;
+        swipe_det.eY = 0;
+    }, false);
+}
 function swipeF(e) {
-    switch (e.key) {
-        case "ArrowRight":
-            newGame.swipe("right");
-            break;
-        case "ArrowLeft":
-            newGame.swipe("left");
-            break;
-        case "ArrowUp":
-            newGame.swipe("up");
-            break;
-        case "ArrowDown":
-            newGame.swipe("down");
-            break;
+    if (!newGame.moving) {
+        switch (e) {
+            case "ArrowRight":
+                newGame.swipe("right");
+                break;
+            case "ArrowLeft":
+                newGame.swipe("left");
+                break;
+            case "ArrowUp":
+                newGame.swipe("up");
+                break;
+            case "ArrowDown":
+                newGame.swipe("down");
+                break;
+        }
     }
 }
+window.addEventListener("keydown", function (e) {
+    swipeF(e.key);
+});
+detectswipe(swipeF);
