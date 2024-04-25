@@ -10,7 +10,72 @@
   --clr-tile-text: #776F64;
 }
 body {
-  font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif
+  font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  height: 100vh;
+  padding-block: 2rem;
+}
+.container {
+  padding: 1rem;
+  background-color: #EEE5D9;
+  display: flex;
+  gap: 1rem;
+  flex-direction: column;
+  width: 460px;
+  box-sizing: content-box;
+}
+#console {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 460px;
+  
+}
+#console > div {
+  display: flex;
+  justify-content: space-between;
+}
+#console > div:nth-child(1) > h1 {
+  color: #776F64;
+}
+#console > div:nth-child(1) > div{
+  display: flex;
+  gap: 0.5rem
+}
+#console > div:nth-child(1) > div > div {
+  background-color: #bcae9f;
+  padding-block: .25rem;
+  border-radius: .25rem;
+  display: inline-flex;
+  align-items: center;
+  flex-direction: column;
+  color: #eee4da;
+  font-weight: 600;
+  min-width: 120px;
+
+}
+#console > div:nth-child(1) > div > div  > span:nth-child(1){
+  font-size: 0.75rem;
+}
+#console > div:nth-child(1) > div > div  > span:nth-child(2){
+  font-size: 1.25rem;
+}
+#console > div:nth-child(2) > p {
+  color: #776F64;
+  font-weight: 500;
+}
+#console > div:nth-child(2) > button{
+  background-color: #776F64;
+  padding: .5rem 1.5rem;
+  border-radius: .25rem;
+  display: inline-flex;
+  align-items: center;
+  outline-width: 0;
+  border-width: 0;
+  color: #eee4da;
+  cursor: pointer;
 }
 #board-container {
   position: relative;
@@ -22,6 +87,26 @@ body {
   border-radius: 4px;
   gap: .75rem;
   grid-auto-rows: 100px;
+}
+#board-container::after {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  content: "Game Over";
+  color: #776F64;
+  font-weight: 700;
+  font-size: 3rem;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.4);
+  z-index: -1;
+  opacity: 0;
+  transition: opacity linear 1s;
+}
+#board-container.game-over::after {
+  z-index: 0;
+  opacity: 100%;
 }
 #board-container span {
   background-color: var(--clr-empty-bg);

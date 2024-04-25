@@ -108,17 +108,36 @@ var colors = {
 var Game = /** @class */ (function () {
     function Game(settings) {
         var _this = this;
+        var _a;
         this.running = true;
         this.newTiles = [];
         this.moving = false;
-        this.elem = settings.container;
+        this.score = 0;
+        this.best = 0;
         this.settings = settings;
+        this.best = Number(localStorage.getItem("bestScore") || "0");
+        this.setScore();
+        this.elem = settings.container;
+        this.emptyCells = Math.pow(this.settings.size, 2);
+        this.board = Array.from({ length: this.settings.size }, function (_, id) {
+            return Array.from({ length: _this.settings.size }, function (_, id) { return null; });
+        });
+        (_a = document.getElementById("reset")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", function () { return _this.reset(); });
+        this.init();
+    }
+    Game.prototype.reset = function () {
+        var _this = this;
+        this.running = true;
+        this.score = 0;
+        this.best = Number(localStorage.getItem("bestScore") || "0");
+        this.setScore();
         this.emptyCells = Math.pow(this.settings.size, 2);
         this.board = Array.from({ length: this.settings.size }, function (_, id) {
             return Array.from({ length: _this.settings.size }, function (_, id) { return null; });
         });
         this.init();
-    }
+        this.drawBoard();
+    };
     Game.prototype.getRandomEmptyCell = function () {
         var count = 0;
         var index = Math.floor(Math.random() * this.emptyCells);
@@ -146,7 +165,7 @@ var Game = /** @class */ (function () {
     Game.prototype.swipe = function (dir) {
         var _a;
         return __awaiter(this, void 0, void 0, function () {
-            var movement, _b, a, b, isMoveMade, i, j, _c, x, y, _d, mX, mY, _e, p, q, nTile, bool;
+            var movement, _b, a, b, isMoveMade, score, i, j, _c, x, y, _d, mX, mY, _e, p, q, nTile, bool;
             var _f, _g, _h;
             var _this = this;
             return __generator(this, function (_j) {
@@ -158,6 +177,7 @@ var Game = /** @class */ (function () {
                         });
                         _b = directions[dir], a = _b[0], b = _b[1];
                         isMoveMade = false;
+                        score = 0;
                         for (i = 0; i < this.board.length; i++) {
                             for (j = 1; j < this.board[i].length; j++) { // j start from 1 to ignore lines farthest in direction of movement and limit out of index error
                                 _c = directions[dir].reduce(function (a, b) { return a + b; }) == -1 ? [i, j] : [i, (this.settings.size - 1) - j], x = _c[0], y = _c[1];
@@ -177,6 +197,7 @@ var Game = /** @class */ (function () {
                                                 }
                                                 else {
                                                     nTile.value *= 2;
+                                                    score += nTile.value;
                                                     nTile.combined = true;
                                                     this.board[x][y] = null;
                                                     this.emptyCells++;
@@ -205,11 +226,12 @@ var Game = /** @class */ (function () {
                     case 1:
                         _j.sent();
                         this.moving = false;
+                        this.setScore(score);
                         this.InsertNewTile();
                         if (this.emptyCells == 0) {
                             bool = this.checkGameOver();
                             if (bool) {
-                                setTimeout(function () { return alert("Game Over"); }, 0);
+                                this.gameOver();
                             }
                         }
                         this.drawBoard();
@@ -236,6 +258,10 @@ var Game = /** @class */ (function () {
         }
         return true;
     };
+    Game.prototype.gameOver = function () {
+        this.running = false;
+        this.elem.parentElement && this.elem.parentElement.classList.add("game-over");
+    };
     Game.prototype.animateMove = function (arr, ms) {
         var _this = this;
         arr.flatMap(function (val) { return val; }).forEach(function (val, idx) {
@@ -254,10 +280,24 @@ var Game = /** @class */ (function () {
     };
     Game.prototype.init = function () {
         //this.styleContainer()
+        this.elem.parentElement && this.elem.parentElement.classList.remove("game-over");
         this.InsertNewTile();
         this.InsertNewTile();
         this.drawBoardConsole();
         //this.startConsole()
+    };
+    Game.prototype.setScore = function (add) {
+        var scoreEl = document.getElementById("score");
+        var bestEl = document.getElementById("best");
+        if (add) {
+            this.score += add;
+            if (this.score > this.best) {
+                this.best = this.score;
+                localStorage.setItem("bestScore", this.best.toString());
+            }
+        }
+        scoreEl.textContent = this.score.toString();
+        bestEl.textContent = this.best.toString();
     };
     Game.prototype.styleContainer = function () {
         this.elem.style.width = (50 * this.settings.size) + "px";
